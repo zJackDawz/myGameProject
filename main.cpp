@@ -43,7 +43,7 @@ void input (Vector2 *p, float *w) {
         width = -width;
     }
 
-    if (IsKeyDown(KEY_SPACE)) {
+    if (IsKeyDown(KEY_SPACE) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         attack = true;
         }
 }
@@ -73,6 +73,10 @@ int main(void)
     //---------------------------------------------------Setting----------------------------------------------------//
     //--------------------------------------------------------------------------------------------------------------//
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+    // Map
+    Texture2D map = LoadTexture("img/map/OpenWorldMap24x24.png");
+    Vector2 mapPos = {0,0};
 
     // Player
     Texture2D playerRun = LoadTexture("img/charactor/goblin_run_spritesheet.png");
@@ -150,26 +154,32 @@ int main(void)
 
         camera.target = (Vector2){ playerDest.x + 0, playerDest.y + 0 };
 
-        Vector2 slash = {30, 80};
+        Vector2 slash = {45, 80};
         Vector2 hand = playerDest;
         hand.x = playerDest.x + ((float)playerAnime.width/6)/2;
         hand.y = playerDest.y + ((float)playerAnime.height)/2;
 
-        hand.y = hand.y - (slash.y/2);
+        Rectangle realslash = {hand.x, hand.y-slash.y/2, 45, 80};
+
+        if(playerLeft) {
+            realslash.x -= slash.x;
+        }
 
         BeginDrawing();
 
             ClearBackground(RAYWHITE);
-
+            
             BeginMode2D(camera);
+                DrawTextureEx(map, mapPos, 0.0, 0.75f, WHITE);
 
                 if (attack) {
-                    if(playerLeft) {
-                        hand.x = hand.x-slash.x;
-                        DrawRectangleV(hand, slash, MAROON);
+                    DrawRectangleRec(realslash, MAROON);
+
+                    if (CheckCollisionPointRec(goblinPos, realslash)) {
+                        goblinPos = { 350.0f, 280.0f };
                     }
-                    else {
-                        DrawRectangleV(hand, slash, MAROON);
+                    if (CheckCollisionRecs(goblinFrameRec, realslash)) {
+                        goblinPos = { 350.0f, 280.0f };
                     }
                 }
 
@@ -190,6 +200,9 @@ int main(void)
     }
 
     UnloadTexture(goblin);
+    UnloadTexture(playerIdle);
+    UnloadTexture(playerRun);
+    UnloadTexture(map);
 
     CloseWindow();
 

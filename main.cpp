@@ -1,4 +1,6 @@
 #include "raylib.h"
+#include <stdlib.h>
+#include <time.h>
 
 #define screenWidth 1280
 #define screenHeight 720
@@ -73,6 +75,8 @@ int main(void)
     //---------------------------------------------------Setting----------------------------------------------------//
     //--------------------------------------------------------------------------------------------------------------//
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
+
+    srand (time(NULL));
 
     // Map
     Texture2D map = LoadTexture("img/map/OpenWorldMap24x24.png");
@@ -161,6 +165,8 @@ int main(void)
 
         Rectangle realslash = {hand.x, hand.y-slash.y/2, 45, 80};
 
+        Rectangle hitboxEnemy = {goblinPos.x, goblinPos.y, (float)goblin.width/6, (float)goblin.height};
+
         if(playerLeft) {
             realslash.x -= slash.x;
         }
@@ -170,16 +176,16 @@ int main(void)
             ClearBackground(RAYWHITE);
             
             BeginMode2D(camera);
-                DrawTextureEx(map, mapPos, 0.0, 0.75f, WHITE);
+                DrawTextureEx(map, mapPos, 0.0, 1.0f, WHITE);
 
                 if (attack) {
-                    DrawRectangleRec(realslash, MAROON);
+                    DrawRectangleRec(realslash, Color{255,255,255,255});
 
-                    if (CheckCollisionPointRec(goblinPos, realslash)) {
-                        goblinPos = { 350.0f, 280.0f };
-                    }
-                    if (CheckCollisionRecs(goblinFrameRec, realslash)) {
-                        goblinPos = { 350.0f, 280.0f };
+                    // if (CheckCollisionPointRec(goblinPos, realslash)) {
+                    //     goblinPos = { 350.0f, 280.0f };
+                    // }
+                    if (CheckCollisionRecs(hitboxEnemy, realslash)) {
+                        goblinPos = { (float)(rand()%map.width) , (float)(rand()%map.height) };
                     }
                 }
 

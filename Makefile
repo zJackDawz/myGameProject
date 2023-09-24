@@ -365,12 +365,18 @@ rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst 
 
 # Define all source files required
 PROJECT_SOURCE_FILES ?= \
-    main.c \
+    gameplay.cpp \
+    Enemy.cpp \
+    Entity.cpp \
+    Player.cpp \
+    Enemy.h \
+    Entity.h \
+    Player.h 
 
 # Define all object files from source files
 SRC = $(call rwildcard, *.c, *.h)
-#OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-OBJS ?= gameplay.cpp
+OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJS ?= *.cpp
 # OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
 
 # For Android platform we call a custom Makefile.Android

@@ -1,13 +1,14 @@
 #include "Player.h"
 
-Player::Player(int initialValue) {
-    memberVariable = initialValue;
+Player::Player(Vector2 pos, Texture sprite) {
+    posX = pos.x;
+    posY = pos.y;
+    spriteWidth = (float)sprite.width/6;
+    spriteHeight = (float)sprite.height;
+    texture = sprite;
 }
 
-int Player::getValue() {
-    return memberVariable;
+void Player::update(float deltaTime) {
+    Entity::update(deltaTime);
 }
 
-void Player::setValue(int newValue) {
-    memberVariable = newValue;
-}

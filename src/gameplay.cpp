@@ -3,31 +3,31 @@
 #include "Player.h"
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 
 #define screenWidth 1280
 #define screenHeight 720
 
 float playerspeed = 3.0;
-float enemyspeed = 1.0;
 bool playerMoving = false;
-bool playerLeft = false;
+float IsLeft = 1.0f;
 bool playerCanMove = true;
 bool attack = false;
+float myframetime = 0.01f;
 
-void input (Vector2 *p, float *w) {
+void input (Vector2 *p) {
     Vector2 &target = *p;
-    float &width = *w;
-    
+
     if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D) )) {
         target.x += playerspeed;
         playerMoving = true;
-        playerLeft = false;
+        IsLeft = 1.0f;
         }
 
     if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
         target.x -= playerspeed;
         playerMoving = true;
-        playerLeft = true;
+        IsLeft = -1.0f;
         }
 
     if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
@@ -40,43 +40,13 @@ void input (Vector2 *p, float *w) {
         playerMoving = true;
         }
 
-    if (playerLeft == true && width > 0) {
-            width = -width;
-        }
-    if (playerLeft == false && width < 0) {
-        width = -width;
-    }
-
     if (IsKeyDown(KEY_SPACE) || IsMouseButtonDown(MOUSE_LEFT_BUTTON)) {
         attack = true;
         }
 }
 
-void enemyTrac(Vector2 *p, Vector2 *t, float *w) {
-    Vector2 &enemyPos = *p;
-    Vector2 &targetPos = *t;
-    float &width = *w;
-    bool left;
-    if (targetPos.x > enemyPos.x) {enemyPos.x+=enemyspeed;left = false;}
-    if (targetPos.x < enemyPos.x) {enemyPos.x-=enemyspeed;left = true;}
-    if (targetPos.y > enemyPos.y) {enemyPos.y+=enemyspeed;}
-    if (targetPos.y < enemyPos.y) {enemyPos.y-=enemyspeed;}
-
-    if (left == true && width > 0) {
-            width = -width;
-        }
-    if (left == false && width < 0) {
-        width = -width;
-    }
-
-}
-
-
 int main(void)
 {
-    Player obj(42);
-
-    // int value = obj.getValue();
 
     //---------------------------------------------------Setting----------------------------------------------------//
     //--------------------------------------------------------------------------------------------------------------//
@@ -107,13 +77,13 @@ int main(void)
 
     Vector2 ballPosition = { (float)screenWidth/2, (float)screenHeight/2 };
 
+    // Enemy enemy;
+
     int currentFrame = 0;
     int playerCurrentFrame = 0;
     int framesCounter = 0;
     int playerFramesCounter = 0;
     int framesSpeed = 8;
-
-    // Enemy enemy{};
 
     Camera2D camera = { 0 };
     camera.target = (Vector2){ playerDest.x + 20.0f, playerDest.y + 0.0f };
@@ -129,6 +99,7 @@ int main(void)
     {
 
         framesCounter++;
+        myframetime = myframetime + 0.01;
 
         if (framesCounter >= (60/framesSpeed))
         {
@@ -154,8 +125,8 @@ int main(void)
             
         }
 
-        input(&playerDest, &playerFrameRec.width);
-        // enemy.enemi();
+        input(&playerDest);
+        // enemy.enemyTrac(&goblinPos, &playerDest, &goblinFrameRec.width);
 
         if (playerMoving) {
             playerAnime = playerRun;
@@ -175,9 +146,14 @@ int main(void)
 
         Rectangle hitboxEnemy = {goblinPos.x, goblinPos.y, (float)goblin.width/6, (float)goblin.height};
 
-        if(playerLeft) {
+        if(IsLeft<1) {
             realslash.x -= slash.x;
         }
+
+        Player player(playerDest, playerAnime);
+
+        // Rectangle source = (Rectangle){playerFrameRec.x, 0.f, IsLeft * (float)playerAnime.width/6, (float)playerAnime.height};
+        // Rectangle dest = (Rectangle){playerDest.x, playerDest.y, (float)playerIdle.width/6, (float)playerIdle.height};
 
         BeginDrawing();
 
@@ -200,13 +176,19 @@ int main(void)
                 DrawCircleV(ballPosition, 20, MAROON);
                 DrawTextureRec(bush, bushRec, bushPos, WHITE);
                 DrawTextureRec(goblin, goblinFrameRec, goblinPos, WHITE);
-                DrawTextureRec(playerAnime, playerFrameRec, playerDest, WHITE);
+                // DrawTextureRec(playerAnime, playerFrameRec, playerDest, WHITE);
+                // DrawTexturePro(playerAnime, source, dest, Vector2 {}, 0, WHITE);
+                player.update(myframetime);
+                // void DrawTextureRec(Texture2D texture, Rectangle source, Vector2 position, Color tint)
+                
 
             EndMode2D();
 
             DrawText("move with arrow keys", 10, 10, 20, DARKGRAY);
 
         EndDrawing();
+
+        // printf("%f\n",(float)GetFrameTime());
 
         playerMoving = false;
         attack = false;

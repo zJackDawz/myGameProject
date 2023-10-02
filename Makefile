@@ -25,7 +25,8 @@
 
 # Define required raylib variables
 PROJECT_NAME       ?= game
-RAYLIB_VERSION     ?= 4.5.0
+RAYLIB_VERSION     ?= 3.0.0
+RAYLIB_API_VERSION ?= 300
 RAYLIB_PATH        ?= ..\..
 
 # Define compiler path on Windows
@@ -364,20 +365,13 @@ endif
 rwildcard=$(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2) $(filter $(subst *,%,$2),$d))
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= \
-    gameplay.cpp \
-    Enemy.cpp \
-    Entity.cpp \
-    Player.cpp \
-    Enemy.h \
-    Entity.h \
-    Player.h 
+SRC_DIR = src
+OBJ_DIR = obj
 
 # Define all object files from source files
 SRC = $(call rwildcard, *.c, *.h)
-OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-OBJS ?= *.cpp
-# OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
+#OBJS = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+OBJS ?= main.c
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)

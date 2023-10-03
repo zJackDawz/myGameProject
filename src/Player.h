@@ -5,7 +5,8 @@
 #include "Entity.h"
 #include "raylib.h"
 #include "Item.h"
-class Player : public Entity, public Item {
+#include "Skill.h"
+class Player : public Entity, public Item, public Skill {
 public:
     Player(Vector2 pos, Texture sprite, Texture spriteRun);
     virtual float getPosX();
@@ -38,6 +39,10 @@ public:
     bool plantActive = false;
     Vector2 plantHere();
     Vector2 temp{};
+
+    bool skillActive = false;
+    float skillActiveTime{};
+    float speedBySkill{};
 
 };
 

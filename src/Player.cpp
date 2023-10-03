@@ -35,6 +35,14 @@ void Player::update(float deltaTime) {
         texture = idle;
     }
 
+    if (skillActive) {
+        Skill::skillUpdate(deltaTime, idle, Vector2{centerX,centerY}, 8, 8);
+        if (millis - skillActiveTime > 200) {
+            skillActive = false;
+            speedBySkill = 0;
+        }
+    }
+
     Entity::update(deltaTime);
 
     if (state == 1) {
@@ -52,10 +60,10 @@ void Player::update(float deltaTime) {
 void Player::input () {
     moving = false;
     if (attack) {
-        playerspeed = 1.0;
+        playerspeed = 0.75 + speedBySkill/5;
     }
     else {
-        playerspeed = 2.0;
+        playerspeed = 2.0 + speedBySkill;
     }
     if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D) )) {
         posX += playerspeed;
@@ -86,7 +94,13 @@ void Player::input () {
         state%=2;
     }
 
-    if ((IsMouseButtonDown(MOUSE_LEFT_BUTTON)) && millis - lastAttack > attackCooldown) {
+    if (IsKeyPressed(KEY_Q)) {
+        skillActive = true;
+        speedBySkill = 5;
+        skillActiveTime = millis;
+    }
+
+    if ((IsMouseButtonDown(MOUSE_LEFT_BUTTON)) && millis - lastAttack > attackCooldown-speedBySkill*5) {
         attack = true;
         state = 0;
         lastAttack = millis;

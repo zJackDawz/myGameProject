@@ -8,6 +8,8 @@
 #include "Skill.h"
 class Player : public Entity, public Item, public Skill {
 public:
+    Rectangle safeArea();
+
     Player(Vector2 pos, Texture sprite, Texture spriteRun);
     virtual float getPosX();
     virtual float getPosY();

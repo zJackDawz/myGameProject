@@ -9,7 +9,8 @@
 
 class Enemy : public Entity, public Item {
 public:
-    Enemy(Texture sprite, Texture spriteRun, int nType);
+    Enemy(Texture sprite, Texture spriteRun, int nType, Player *character);
+    // ~Enemy(){};
     float enemyspeed{};
     void enemyTrac(float targetPosX, float targetPosY);
     virtual void update(float delTatime) override;
@@ -20,8 +21,8 @@ public:
     int type{};
     int phase = 1;
     float defaultSpeed{};
-    void dropChance();
-    void removeItem();
+    virtual void dropChance();
+    virtual void removeItem();
     float increaseSpeed{};
 private:
     Player* target;

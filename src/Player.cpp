@@ -67,18 +67,22 @@ void Player::input () {
     else {
         playerspeed = 2.0 + speedBySkill;
     }
+
+    if (GetMouseX() >  655 && attack != true) {
+        Isleft = 1.0;
+    }
+    else if (GetMouseX() <  655 && attack != true){
+        Isleft = -1.0;
+    }
+
     if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) && posX < map.width-spriteWidth ) {
         posX += playerspeed;
         moving = true;
-        if (attack != true){
-        Isleft = 1.0f;}
         }
 
     if ((IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) && posX > 0) {
         posX -= playerspeed;
         moving = true;
-        if (attack != true){
-        Isleft = -1.0f;}
         }
 
     if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && posY > 0 ) {
@@ -91,13 +95,13 @@ void Player::input () {
         moving = true;
         }
     
-    if (IsKeyPressed(KEY_F) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
-        state=(state+1)%2;
+    if (IsKeyPressed(KEY_F) || IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
+        state=1;
     }
 
     if (IsKeyPressed(KEY_Q) && millis - skillActiveTime > skillCooldown[0]) {
         skillActive = true;
-        speedBySkill = 2.5;
+        speedBySkill = 1.5;
         skillActiveTime = millis;
     }
 
@@ -157,6 +161,7 @@ void Player::printStatus() {
     else {
         DrawText("Skill Is Ready", 10, 120, 40, GREEN);
     }
+    DrawText(TextFormat("Mouse  : %d ", GetMouseX()), 10, 160, 20, DARKGRAY);
 }
 
 void Player::get() {
@@ -175,14 +180,15 @@ void Player::implant() {
     DrawRectangleRec(plantHitbox, tintPlant);
     tintPlant =  {0, 228, 48, 240 };
     }
-    if (IsKeyPressed(KEY_SPACE) && seeds > 0 && state ==  1) {
+    if (IsMouseButtonUp(MOUSE_BUTTON_RIGHT) && seeds > 0 && state ==  1) {
         seeds--;
         state = 0;
         temp.x = debugX;
         temp.y = spriteHeight+posY-((float)greenPea.height);
         plant = true;
     }
-    else if (IsKeyPressed(KEY_SPACE) && state == 1) {
+    else if (IsMouseButtonUp(MOUSE_BUTTON_RIGHT) && state == 1) {
+        state = 0;
         tintPlant = RED;
         Rectangle plantHitbox = {debugX, spriteHeight+posY-((float)greenPea.height), (float)greenPea.width/4, (float)greenPea.height};
         DrawRectangleRec(plantHitbox, tintPlant);
@@ -192,4 +198,13 @@ void Player::implant() {
 
 Vector2 Player::plantHere() {
     return {temp.x, temp.y};
+}
+
+Rectangle Player::safeArea() {
+    float margin = 100;
+        return Rectangle{
+                posX-margin/2,
+                posY-margin/2,
+                spriteWidth+margin,
+                spriteHeight+margin};
 }

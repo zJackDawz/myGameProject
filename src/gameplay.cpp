@@ -94,29 +94,31 @@ void gameplay() {
 
     // ---------------------- Class init ---------------------- //
     
-    Enemy enemy1{playerRun, goblin, 1};
-    Enemy enemy2{goblin, goblin, 2};
+    Player player{playerPos, playerIdle, playerRun};
+
+    // Enemy enemy1{playerRun, goblin, 1};
+    // Enemy enemy2{goblin, goblin, 2};
+    // Enemy *enemy3 = new Enemy{playerRun, goblin, 1};
     // Enemy *enemies[] { &enemy1, &enemy2};
     std::vector<Enemy> enemies;
     std::vector<Item> items;
 
-    for (int i = 0; i < 1; ++i) {
-        if (GetRandomValue(1,1)){
-            Enemy enemy(goblin, goblin, 2);
-            enemies.push_back(enemy);
-            }
+    for (int i = 0; i < 5; ++i) {
+        if (GetRandomValue(0,4)){
+            // Enemy *enemy3 = new Enemy{playerRun, goblin, 1};
+            Enemy *enemy = new Enemy(goblin, goblin, 2, &player);
+            enemies.push_back(*enemy);
+        }
         else {
-            Enemy enemy(playerRun, goblin, 1);
-            enemies.push_back(enemy);
-            }
+            Enemy *enemy = new Enemy(playerRun, goblin, 1, &player);
+            enemies.push_back(*enemy);
+        }
     }
-
-    Player player{playerPos, playerIdle, playerRun};
     
-    for (auto &enemy : enemies)
-    {
-        enemy.SetTarget(&player);
-    }
+    // for (auto &enemy : enemies)
+    // {
+    //     enemy.SetTarget(&player);
+    // }
 
     // ---------------------- Camera ---------------------- //
     Camera2D camera = { 0 };
@@ -145,28 +147,36 @@ void gameplay() {
                 BeginMode2D(camera);
                     DrawTextureEx(map, mapPos, 0.0, 1.0f, WHITE);
 
-                    // if (mainCount > 10) {
-                    //     mainCount = 0;
-                    //     if (GetRandomValue(0,4)){
-                    //         Enemy enemy(goblin, goblin, 2);
-                    //         enemies.push_back(enemy);
-                    //         }
-                    //     else {
-                    //         Enemy enemy(playerRun, goblin, 1);
-                    //         enemies.push_back(enemy);
-                    //         }
-                    // }
+                    if (mainCount > 1) {
+                        mainCount = 0;
+                        if (GetRandomValue(0,6) == 2){
+                            Enemy *enemy = new Enemy(goblin, goblin, 2, &player);
+                            enemies.push_back(*enemy);
+                            printf("knight spawn");
+                            }
+                        else {
+                            Enemy *enemy = new Enemy(playerRun, goblin, 1, &player);
+                            enemies.push_back(*enemy);
+                            }
+                    }
 
-                    for (auto &enemy : enemies)
-                    {
-                        if (CheckCollisionRecs(enemy.hitbox(), player.hitboxAttack())) {
-                            enemy.dead();
+                    for (auto enemy = enemies.begin(); enemy != enemies.end(); ) {
+                        // enemy->SetTarget(&player);
+                        
+                        if (CheckCollisionRecs(enemy->hitbox(), player.hitboxAttack())) {
+                            enemy->dead();
                         }
-                        if (CheckCollisionRecs(enemy.itemHitbox(), player.hitbox())) {
+                        
+                        if (CheckCollisionRecs(enemy->itemHitbox(), player.hitbox())) {
                             player.get();
-                            enemy.removeItem();
+                            enemy->removeItem();
                         }
-                        enemy.SetTarget(&player);
+                        
+                        if (!enemy->alive) {
+                            enemy = enemies.erase(enemy);
+                        } else {
+                            ++enemy;
+                        }
                     }
 
                     for (auto &plant : plants) {
@@ -188,7 +198,7 @@ void gameplay() {
                     {
                         plant.drawPlant(GetFrameTime());
                     }
-                    
+
                     player.update(GetFrameTime());
 
                     if (player.plant) {

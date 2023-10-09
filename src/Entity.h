@@ -8,6 +8,7 @@
 class Entity {
 public:
         Entity();
+        virtual ~Entity() {};
         Rectangle hitbox();
         void undoMovement();
         void takeDamage(int damage);
@@ -17,6 +18,8 @@ public:
 
         float startTime = (float)time(NULL);
         int health{};
+        float Isleft = 1.0f;
+        float spriteWidth{};
 
 protected:
 
@@ -24,12 +27,12 @@ protected:
         
         void attackFx(float deltaTime,int maxFrames, Texture tempfx, float scale);
         float millis{};
-        float Isleft = 1.0f;
+        
         float runningTime = 0;
         int frame{};
         int maxFrames{6};
         float updateTime{1.0f / 12.0f};
-        float spriteWidth{};
+        
         float spriteHeight{};
         float posX{};
         float posY{};

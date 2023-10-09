@@ -32,7 +32,7 @@ void Skill::skillUpdate(float deltaTime, Texture skillFx, Vector2 pos, float ski
 
         }
 
-        printf("frame %f : line %f\n",frame, line);
+        // printf("frame %f : line %f\n",frame, line);
         Rectangle source = (Rectangle){frame * skillWidth, line * skillHeight, skillWidth, skillHeight};
         Rectangle dest = (Rectangle){pos.x-skillWidth/2+3, pos.y-skillHeight/2-2, skillWidth, skillHeight};
         DrawTexturePro(skill, source, dest, Vector2 {}, 0, WHITE);

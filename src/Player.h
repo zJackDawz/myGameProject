@@ -16,6 +16,7 @@ public:
 
     void get();
     void implant();
+    bool plant = false;
 
     virtual void drawAttack();
     void drawWeapon();
@@ -24,7 +25,7 @@ public:
     Rectangle hitboxAttack();
 
     float playerspeed = 2.0;
-    float attackCooldown  = 50;
+    float attackCooldown  = 0.7;
     float lastAttack = -attackCooldown;
 
     Texture idle;
@@ -40,9 +41,15 @@ public:
     Vector2 plantHere();
     Vector2 temp{};
 
+    int money{};
+
     bool skillActive = false;
-    float skillActiveTime{};
+    float skillActiveTime{-20};
     float speedBySkill{};
+    float skillCooldown[1] = {10};
+    float timeCount{};
+
+    Color tintPlant = { 0, 228, 48, 240 };
 
 };
 

@@ -2,23 +2,70 @@
 
 #include "Enemy.h"
 #include "Player.h"
-#include "Item.h"
+#include "Plant.h"
 
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <vector>
 
 #define screenWidth 1280
 #define screenHeight 720
 
-int main(void)
-{
+float mainCount{};
 
-    //---------------------------------------------------Setting----------------------------------------------------//
-    //--------------------------------------------------------------------------------------------------------------//
+int screen{};
+
+int score{};
+
+bool gameRunning = true;
+
+bool init = true;
+
+void gameplay();
+
+int main(void) {
+    // Set-up
     InitWindow(screenWidth, screenHeight, "raylib [core] example - basic window");
 
     srand (time(NULL));
+
+    // Main Game LOOP
+    while (gameRunning) {
+
+        if (screen == 0) {
+            gameplay();
+        }
+
+        // End Screen
+        while (screen == 1) {
+            BeginDrawing();
+                ClearBackground(RAYWHITE);
+                DrawText("You Suck!", (screenWidth-100)/8, (screenHeight-200)/2, 200, RED);
+                DrawText(TextFormat("Money : %d ", score), (screenWidth-200)/2, (screenHeight-40)/2+100, 40, DARKGRAY);
+            EndDrawing();
+            if (IsKeyPressed(KEY_R)) {
+                screen = 0;
+            }
+            else if (WindowShouldClose()) {
+                gameRunning = false;
+                screen = 99;
+            }
+        }
+
+    }
+
+    // UnloadTexture(goblin);
+    // UnloadTexture(playerIdle);
+    // UnloadTexture(playerRun);
+    // UnloadTexture(map);
+
+    CloseWindow();
+
+    return 0;
+}
+
+void gameplay() {
 
     // ---------------------- Map ---------------------- //
     Texture2D map = LoadTexture("img/map/OpenWorldMap24x24.png");
@@ -33,11 +80,9 @@ int main(void)
 
     // ---------------------- Goblin ---------------------- //
     Texture2D goblin = LoadTexture("img/charactor/knight_run_spritesheet.png");
-    Vector2 goblinPos = { 350.0f, 280.0f };
 
-    // ---------------------- item ---------------------- //
-    Item seed{};
-
+    // ---------------------- Plants ---------------------- //
+    std::vector<Plant> plants;
 
     // ---------------------- Bush ---------------------- //
     Texture2D bush = LoadTexture("img/map/Bush.png");
@@ -48,23 +93,30 @@ int main(void)
 
 
     // ---------------------- Class init ---------------------- //
-    Enemy enemy1{goblinPos, playerRun, goblin, 1};
-    Enemy enemy2{goblinPos, goblin, goblin, 2};
-    Enemy *enemies[] { &enemy1, &enemy2};
-    for (auto enemy : enemies)
-    {
-        enemy->getMap(map);
-    }
     
+    Enemy enemy1{playerRun, goblin, 1};
+    Enemy enemy2{goblin, goblin, 2};
+    // Enemy *enemies[] { &enemy1, &enemy2};
+    std::vector<Enemy> enemies;
+    std::vector<Item> items;
 
+    for (int i = 0; i < 1; ++i) {
+        if (GetRandomValue(1,1)){
+            Enemy enemy(goblin, goblin, 2);
+            enemies.push_back(enemy);
+            }
+        else {
+            Enemy enemy(playerRun, goblin, 1);
+            enemies.push_back(enemy);
+            }
+    }
 
     Player player{playerPos, playerIdle, playerRun};
     
-    for (auto enemy : enemies)
+    for (auto &enemy : enemies)
     {
-        enemy->SetTarget(&player);
+        enemy.SetTarget(&player);
     }
-
 
     // ---------------------- Camera ---------------------- //
     Camera2D camera = { 0 };
@@ -74,75 +126,98 @@ int main(void)
 
     SetTargetFPS(60);
 
-    //--------------------------------------------------------------------------------------------------------------//
-    //--------------------------------------------------------------------------------------------------------------//
+    while (player.alive && !IsKeyPressed(KEY_P)) {
+            mainCount+=GetFrameTime();
 
-    // Main Game LOOP
-    while (!WindowShouldClose())
-    {
+            player.input();
 
-        player.input();
-        for (auto enemy : enemies)
-        {
-            enemy->enemyTrac(player.getPosX(), player.getPosY());
-        }
+            for (auto &enemy : enemies)
+            {
+                enemy.enemyTrac(player.getPosX(), player.getPosY());
+            }
 
-        camera.target = (Vector2){ player.getPosX() + 0, player.getPosY() + 0 };
+            camera.target = (Vector2){ player.getPosX() + 0, player.getPosY() + 0 };
 
-        BeginDrawing();
+            BeginDrawing();
 
-            ClearBackground(RAYWHITE);
-            
-            BeginMode2D(camera);
-                DrawTextureEx(map, mapPos, 0.0, 1.0f, WHITE);
+                ClearBackground(RAYWHITE);
+                
+                BeginMode2D(camera);
+                    DrawTextureEx(map, mapPos, 0.0, 1.0f, WHITE);
 
+                    // if (mainCount > 10) {
+                    //     mainCount = 0;
+                    //     if (GetRandomValue(0,4)){
+                    //         Enemy enemy(goblin, goblin, 2);
+                    //         enemies.push_back(enemy);
+                    //         }
+                    //     else {
+                    //         Enemy enemy(playerRun, goblin, 1);
+                    //         enemies.push_back(enemy);
+                    //         }
+                    // }
 
-                for (auto enemy : enemies)
-                {
-                    if (CheckCollisionRecs(enemy->hitbox(), player.hitboxAttack())) {
-                    seed.chance(enemy->getPos());
-                    enemy->dead();
+                    for (auto &enemy : enemies)
+                    {
+                        if (CheckCollisionRecs(enemy.hitbox(), player.hitboxAttack())) {
+                            enemy.dead();
+                        }
+                        if (CheckCollisionRecs(enemy.itemHitbox(), player.hitbox())) {
+                            player.get();
+                            enemy.removeItem();
+                        }
+                        enemy.SetTarget(&player);
                     }
-                }
 
-                if (CheckCollisionRecs(seed.itemHitbox(), player.hitbox())) {
-                    player.get();
-                    seed.get();
-                }
+                    for (auto &plant : plants) {
+                        if (CheckCollisionRecs(player.hitbox(),plant.hitbox()) && plant.readyToHarvest && player.state == 0) {
+                            plant.tint = GOLD;
+                            if (IsKeyPressed(KEY_SPACE)) {
+                                player.money += plant.remove();
+                            }
+                        }
+                        else {
+                            plant.tint = WHITE;
+                        }
+                    }
 
+                    DrawCircleV(ballPosition, 20, MAROON);
+                    DrawTextureRec(bush, bushRec, bushPos, WHITE);
 
-                DrawCircleV(ballPosition, 20, MAROON);
-                DrawTextureRec(bush, bushRec, bushPos, WHITE);
+                    for (auto &plant : plants)
+                    {
+                        plant.drawPlant(GetFrameTime());
+                    }
+                    
+                    player.update(GetFrameTime());
 
-                if (player.plantActive) {
-                    seed.drawPlant(player.plantHere());
-                }
+                    if (player.plant) {
+                        Plant plant{player.plantHere()};
+                        plants.push_back(plant);
+                        player.plant = false;
+                    }
 
-                seed.drawItem();
+                    for (auto &enemy : enemies)
+                    {
+                        enemy.update(GetFrameTime());
+                    }
+                    
+                EndMode2D();
+
+                DrawText("move with arrow keys || w a s d", 10, 10, 20, DARKGRAY);
+                player.printStatus();
+
                 
-                player.update(GetFrameTime());
-
-                for (auto enemy : enemies)
-                {
-                    enemy->update(GetFrameTime());
-                }
-                
-
-            EndMode2D();
-
-            DrawText("move with arrow keys || w a s d", 10, 10, 20, DARKGRAY);
-            player.printStatus();
-
-        EndDrawing();
-
+            EndDrawing();
     }
-
+    screen = 1;
+    score = player.money;
     UnloadTexture(goblin);
     UnloadTexture(playerIdle);
     UnloadTexture(playerRun);
     UnloadTexture(map);
+}
 
-    CloseWindow();
-
-    return 0;
+void intitClear() {
+    
 }

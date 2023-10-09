@@ -2,6 +2,8 @@
 #define ENITY_H
 
 #include "raylib.h"
+#include <stdio.h>
+#include <time.h>
 
 class Entity {
 public:
@@ -9,11 +11,16 @@ public:
         Rectangle hitbox();
         void undoMovement();
         void takeDamage(int damage);
+        bool alive{true};
 
         virtual void update(float deltaTime);
-        
+
+        float startTime = (float)time(NULL);
+        int health{};
 
 protected:
+
+        Texture2D map = LoadTexture("img/map/OpenWorldMap24x24.png");
         
         void attackFx(float deltaTime,int maxFrames, Texture tempfx, float scale);
         float millis{};
@@ -28,7 +35,7 @@ protected:
         float posY{};
         Texture texture;
         Color colorSprite = WHITE;
-        float colorDelay{};
+        float colorDelay{5};
 
         bool attack{false};
 
@@ -40,7 +47,7 @@ protected:
         float tempTime{};
         int Fxframe{};
 
-        int health{};
+        
         int damage{};
 };
 

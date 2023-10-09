@@ -14,27 +14,10 @@ Item::Item() {
 Item::~Item() {
 }
 
-void Item::chance(Vector2 enemyPos) {
-        if (GetRandomValue(0,2) && drop != true) {
-                
-                drop = true;
-                itemPos = enemyPos;
-                printf("Item Drop !\n");
-        }
-}
-
-void Item::get() {
-        drop = false;
-        printf("Get !\n");
-        itemPos = {-1000, -1000};
-}
-
-void Item::drawItem() {
-        if (drop) {
+void Item::drawItem(Vector2 pos) {
         Rectangle source = (Rectangle){0.f, 0.f, itemWidth, itemHeight};
-        Rectangle dest = (Rectangle){itemPos.x, itemPos.y, itemWidth, itemHeight};
+        Rectangle dest = (Rectangle){pos.x, pos.y, itemWidth, itemHeight};
         DrawTexturePro(greenPeaSeeds, source, dest, Vector2 {}, 0, WHITE);
-        }
 }
 
 Rectangle Item::itemHitbox() {

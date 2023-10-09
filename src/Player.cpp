@@ -4,6 +4,7 @@
 #include "raylib.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 Player::Player(Vector2 pos, Texture spriteIdle, Texture spriteRun) {
     posX = pos.x;
@@ -13,7 +14,7 @@ Player::Player(Vector2 pos, Texture spriteIdle, Texture spriteRun) {
     texture = spriteIdle;
     idle = spriteIdle;
     run = spriteRun;
-    health = 100;
+    health = 20;
 }
 
 float Player::getPosX() {
@@ -25,6 +26,7 @@ float Player::getPosY() {
 }
 
 void Player::update(float deltaTime) {
+    timeCount+=deltaTime;
     centerX = posX + spriteWidth/2;
     centerY = posY + spriteHeight/2;
 
@@ -37,7 +39,7 @@ void Player::update(float deltaTime) {
 
     if (skillActive) {
         Skill::skillUpdate(deltaTime, idle, Vector2{centerX,centerY}, 8, 8);
-        if (millis - skillActiveTime > 200) {
+        if (millis - skillActiveTime > 2.8) {
             skillActive = false;
             speedBySkill = 0;
         }
@@ -65,38 +67,37 @@ void Player::input () {
     else {
         playerspeed = 2.0 + speedBySkill;
     }
-    if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D) )) {
+    if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) && posX < map.width-spriteWidth ) {
         posX += playerspeed;
         moving = true;
         if (attack != true){
         Isleft = 1.0f;}
         }
 
-    if (IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) {
+    if ((IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) && posX > 0) {
         posX -= playerspeed;
         moving = true;
         if (attack != true){
         Isleft = -1.0f;}
         }
 
-    if (IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) {
+    if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && posY > 0 ) {
         posY -= playerspeed;
         moving = true;
         }
 
-    if (IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) {
+    if ((IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) && posY < map.height-spriteHeight) {
         posY += playerspeed;
         moving = true;
         }
     
-    if (IsKeyPressed(KEY_F)) {
-        state++;
-        state%=2;
+    if (IsKeyPressed(KEY_F) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
+        state=(state+1)%2;
     }
 
-    if (IsKeyPressed(KEY_Q)) {
+    if (IsKeyPressed(KEY_Q) && millis - skillActiveTime > skillCooldown[0]) {
         skillActive = true;
-        speedBySkill = 5;
+        speedBySkill = 2.5;
         skillActiveTime = millis;
     }
 
@@ -149,6 +150,13 @@ void Player::printStatus() {
     DrawText(TextFormat("Player Health : %d ", health), 10, 40, 20, DARKGRAY);
     DrawText(TextFormat("State : %d ", state), 10, 60, 20, DARKGRAY);
     DrawText(TextFormat("GreenPeaSeeds : %d ", seeds), 10, 80, 20, DARKGRAY);
+    DrawText(TextFormat("Money : %d ", money), 10, 100, 20, DARKGRAY);
+    if (skillCooldown[0]-(timeCount-skillActiveTime)>0) {
+        DrawText(TextFormat("Skill Is On Cooldown Ma yed mae : %.2f ", skillCooldown[0]-(timeCount-skillActiveTime)), 10, 120, 60, RED);
+    }
+    else {
+        DrawText("Skill Is Ready", 10, 120, 40, GREEN);
+    }
 }
 
 void Player::get() {
@@ -162,14 +170,22 @@ void Player::implant() {
     if (Isleft < 0) {
         debugX-=startHit*2+(float)greenPea.width/4;
     }
-    Rectangle plant = {debugX, spriteHeight+posY-((float)greenPea.height), (float)greenPea.width/4, (float)greenPea.height};
-    DrawRectangleRec(plant, Color{ 0, 228, 48, 240 });
-    if (IsKeyPressed(KEY_SPACE) && seeds > 0) {
+    if (state == 1 ) {
+    Rectangle plantHitbox = {debugX, spriteHeight+posY-((float)greenPea.height), (float)greenPea.width/4, (float)greenPea.height};
+    DrawRectangleRec(plantHitbox, tintPlant);
+    tintPlant =  {0, 228, 48, 240 };
+    }
+    if (IsKeyPressed(KEY_SPACE) && seeds > 0 && state ==  1) {
         seeds--;
         state = 0;
         temp.x = debugX;
         temp.y = spriteHeight+posY-((float)greenPea.height);
-        plantActive = true;
+        plant = true;
+    }
+    else if (IsKeyPressed(KEY_SPACE) && state == 1) {
+        tintPlant = RED;
+        Rectangle plantHitbox = {debugX, spriteHeight+posY-((float)greenPea.height), (float)greenPea.width/4, (float)greenPea.height};
+        DrawRectangleRec(plantHitbox, tintPlant);
     }
     
 }

@@ -3,14 +3,11 @@
 
 #include "raylib.h"
 
-
 class Item {
 public:
         Item();
         ~Item();
-        void chance(Vector2 enemyPos);
-        void get();
-        void drawItem();
+        void drawItem(Vector2 pos);
         void drawPlant(Vector2 pos);
         Rectangle itemHitbox();
 protected:

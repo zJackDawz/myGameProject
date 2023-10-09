@@ -6,7 +6,7 @@ Entity::Entity() {
 }
 
 void Entity::update(float deltaTime) {
-        millis++;
+        millis+=deltaTime;
         
         runningTime+=deltaTime;
         // printf("%f\n", millis);
@@ -23,7 +23,7 @@ void Entity::update(float deltaTime) {
         Rectangle source = (Rectangle){frame * spriteWidth, 0.f, Isleft * spriteWidth, spriteHeight};
         Rectangle dest = (Rectangle){posX, posY, spriteWidth, spriteHeight};
         DrawTexturePro(texture, source, dest, Vector2 {}, 0, colorSprite);
-        if (millis - colorDelay > 5) { 
+        if (millis - colorDelay > 0.1) { 
                 colorSprite = WHITE;}
         
 }
@@ -36,7 +36,7 @@ void Entity::attackFx(float deltaTime,int maxFrames, Texture tempfx, float scale
         
         tempTime+=deltaTime;
         
-        if (tempTime >= 1.0f / 24.0f)
+        if (tempTime >= 1.0f / 30.0f)
         {
                 tempTime = 0.f;
                 Fxframe++;
@@ -72,6 +72,9 @@ void Entity::takeDamage(int damage) {
         health-= damage;
         colorSprite = RED;
         colorDelay = millis;
+        if (health <= 0) {
+                alive = false;
+        }
 }
 
 // void Entity::undoMovement() {

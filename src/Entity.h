@@ -20,6 +20,7 @@ public:
         int health{};
         float Isleft = 1.0f;
         float spriteWidth{};
+        bool attack{false};
 
 protected:
 
@@ -40,7 +41,7 @@ protected:
         Color colorSprite = WHITE;
         float colorDelay{5};
 
-        bool attack{false};
+       
 
         bool moving = true;
         

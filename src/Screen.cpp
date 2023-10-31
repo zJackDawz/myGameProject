@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "raymath.h"
 #include "Screen.h"
 #include <vector>
 #include <fstream>
@@ -25,7 +26,11 @@ Screen::Screen() {
         // ---------------------- Player ---------------------- //
         playerRun = LoadTexture("img/charactor/goblin_run_spritesheet.png");
         playerIdle = LoadTexture("img/charactor/goblin_idle_spritesheet.png");
-        playerPos = { (float)screenWidth/2, (float)screenHeight/2 };
+        playerPos = { (float)screenWidth/3, (float)screenHeight/3 };
+
+        // ---------------------- Player_2 ---------------------- //
+        playerRun2 = LoadTexture("img/charactor/player-run.png");
+        playerIdle2 = LoadTexture("img/charactor/player-idle.png");
 
 
         // ---------------------- Goblin ---------------------- //
@@ -43,7 +48,7 @@ void Screen::startMenu() {
 
     std::vector<Score> scoreboard;
 
-	Texture2D background_6 = LoadTexture("img/menuBackground/sky.png");
+	Texture2D background_6 = LoadTexture("img/menuBackground/sky2.png");
 	Texture2D background_5 = LoadTexture("img/menuBackground/far-clouds.png");
 	Texture2D background_4 = LoadTexture("img/menuBackground/near-clouds.png");
 	Texture2D background_3 = LoadTexture("img/menuBackground/far-mountains.png");
@@ -52,6 +57,7 @@ void Screen::startMenu() {
 
     Texture2D gameName = LoadTexture("img/menuBackground/game-name.png");
     Texture2D creatorName = LoadTexture("img/menuBackground/creator-name.png");
+    Texture2D scoreboardBackground = LoadTexture("img/menuBackground/score-board.png");
 
 	float scrolling_6 = 0.0f;
     float scrolling_5 = 0.0f;
@@ -325,12 +331,13 @@ void Screen::startMenu() {
                 DrawTextureEx(background_1, (Vector2){ scrolling_1, 50 }, 0.0f, scale, WHITE);
                 DrawTextureEx(background_1, (Vector2){ background_1.width*scale + scrolling_1, 50 }, 0.0f, scale, WHITE);
                 DrawTextureEx(background_1, (Vector2){ background_1.width*scale*2 + scrolling_1, 50 }, 0.0f, scale, WHITE);
+                DrawTextureV(scoreboardBackground, Vector2 {}, WHITE); 
                 // Render the scoreboard
-                DrawText("Scoreboard", 10, 10, 20, WHITE); // Title
+                DrawText("Scoreboard", screenWidth/2.0f - MeasureText("Scoreboard", 60)/2, 60, 60, WHITE); // Title
                 // Render each score
                 for (size_t i = 0; i < scores.size() && i < 5; i++) {
-                    std::string scoreText = scores[i].playerName + ": " + std::to_string(scores[i].score);
-                    DrawText(scoreText.c_str(), 10, 40 + i * 30, 16, WHITE);
+                    std::string scoreText = scores[i].playerName + "\t:\t" + std::to_string(scores[i].score);
+                    DrawText(scoreText.c_str(), screenWidth/2.0f - MeasureText(scoreText.c_str(), 40)/2 , 170 + i * 50, 40, DARKBROWN);
                 }
 
                 DrawTextureRec(back, backSource, (Vector2){ backBounds.x, backBounds.y }, WHITE);
@@ -366,7 +373,7 @@ void Screen::Play() {
         
         // ---------------------- Class init ---------------------- //
     
-        Player player{playerPos, playerIdle, playerRun};
+        Player player{playerPos, playerIdle2, playerRun2};
 
         std::vector<Enemy> enemies;
         std::vector<Item> items;
@@ -406,12 +413,15 @@ void Screen::Play() {
                         enemy.enemyTrac(player.getPosX(), player.getPosY());
                 }
 
-                if (mainCount > 1) {
+                if (enemySpawn > 10 ) {
+                    enemySpawn = 10;
+                }
+                if (mainCount > 2 - enemySpawn/10) {
+                        enemySpawn++;
                         mainCount = 0;
-                        if (GetRandomValue(0,6) == 2) {
+                        if (GetRandomValue(0,5) == 2) {
 							Enemy *enemy = new Enemy(goblin, goblin, 2, &player);
 							enemies.push_back(*enemy);
-							printf("knight spawn");
                         }
                         else {
 							Enemy *enemy = new Enemy(playerRun, goblin, 1, &player);
@@ -420,6 +430,24 @@ void Screen::Play() {
                 }
 
                 camera.target = (Vector2){ player.getPosX() + 0, player.getPosY() + 0 };
+                camera.offset = (Vector2){ screenWidth/2.0f, screenHeight/2.0f };
+
+                float minX = 0, minY = 0, maxX = map.width, maxY = map.height;
+
+                Vector2 max = GetWorldToScreen2D((Vector2){ maxX, maxY }, camera);
+                Vector2 min = GetWorldToScreen2D((Vector2){ minX, minY }, camera);
+
+                if (max.x < screenWidth) camera.offset.x = screenWidth - (max.x - screenWidth/2);
+                if (max.y < screenHeight) camera.offset.y = screenHeight - (max.y - screenHeight/2);
+                if (min.x > 0) camera.offset.x = screenWidth/2 - min.x;
+                if (min.y > 0) camera.offset.y = screenHeight/2 - min.y;
+
+                if (GetMouseX() >  camera.offset.x && player.attack != true) {
+                    player.Isleft = 1.0;
+                }
+                else if (GetMouseX() <  camera.offset.x && player.attack != true){
+                    player.Isleft = -1.0;
+                }
 
                 BeginDrawing();
 
@@ -461,8 +489,6 @@ void Screen::Play() {
                                 }
                         }
 
-                        DrawCircleV(ballPosition, 20, MAROON);
-
                         for (auto &plant : plants) {
                                 plant.drawPlant(GetFrameTime());
                         }
@@ -481,7 +507,8 @@ void Screen::Play() {
                         
                         EndMode2D();
 
-                        DrawText("move with arrow keys || w a s d", 10, 10, 20, DARKGRAY);
+                        // DrawText("move with arrow keys || w a s d", 10, 10, 20, DARKGRAY);
+                        // DrawText(TextFormat("Camera Offset X : %f", camera.offset.x), 10, 210, 20, DARKGRAY);
                         player.printStatus();
 
                         

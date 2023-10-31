@@ -68,29 +68,24 @@ void Player::input () {
         playerspeed = 2.0 + speedBySkill;
     }
 
-    if (GetMouseX() >  655 && attack != true) {
-        Isleft = 1.0;
-    }
-    else if (GetMouseX() <  655 && attack != true){
-        Isleft = -1.0;
-    }
+    
 
-    if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) && posX < map.width-spriteWidth ) {
+    if ((IsKeyDown(KEY_RIGHT) || IsKeyDown(KEY_D)) && posX < map.width-spriteWidth-50 ) {
         posX += playerspeed;
         moving = true;
         }
 
-    if ((IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) && posX > 0) {
+    if ((IsKeyDown(KEY_LEFT) || IsKeyDown(KEY_A)) && posX > 50) {
         posX -= playerspeed;
         moving = true;
         }
 
-    if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && posY > 0 ) {
+    if ((IsKeyDown(KEY_UP) || IsKeyDown(KEY_W)) && posY > 50 ) {
         posY -= playerspeed;
         moving = true;
         }
 
-    if ((IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) && posY < map.height-spriteHeight) {
+    if ((IsKeyDown(KEY_DOWN) || IsKeyDown(KEY_S)) && posY < map.height-spriteHeight-50) {
         posY += playerspeed;
         moving = true;
         }
@@ -151,17 +146,18 @@ Rectangle Player::hitboxAttack() {
 }
 
 void Player::printStatus() {
-    DrawText(TextFormat("Player Health : %d ", health), 10, 40, 20, DARKGRAY);
-    DrawText(TextFormat("State : %d ", state), 10, 60, 20, DARKGRAY);
-    DrawText(TextFormat("GreenPeaSeeds : %d ", seeds), 10, 80, 20, DARKGRAY);
-    DrawText(TextFormat("Money : %d ", money), 10, 100, 20, DARKGRAY);
+    DrawText(TextFormat("Player Health : %d ", health), 10, 10, 20, DARKGRAY);
+    // DrawText(TextFormat("State : %d ", state), 10, 60, 20, DARKGRAY);
+    DrawText(TextFormat("GreenPeaSeeds : %d ", seeds), 10, 35, 20, DARKGRAY);
+    DrawText(TextFormat("Money : %d ", money), 10, 60, 20, DARKGRAY);
     if (skillCooldown[0]-(timeCount-skillActiveTime)>0) {
-        DrawText(TextFormat("Skill Is On Cooldown : %.2f ", skillCooldown[0]-(timeCount-skillActiveTime)), 10, 120, 60, RED);
+        DrawText(TextFormat("Skill Is On Cooldown : %.2f ", skillCooldown[0]-(timeCount-skillActiveTime)), 10, 85, 20, RED);
     }
     else {
-        DrawText("Skill Is Ready", 10, 120, 40, GREEN);
+        DrawText("Skill Is Ready", 10, 85, 20, GREEN);
     }
-    DrawText(TextFormat("Mouse  : %d ", GetMouseX()), 10, 160, 20, DARKGRAY);
+    // DrawText(TextFormat("Mouse  : %d ", GetMouseX()), 10, 160, 20, DARKGRAY);
+    // DrawText(TextFormat("PlayerposX  : %f ", centerX), 10, 185, 20, DARKGRAY);
 }
 
 void Player::get() {

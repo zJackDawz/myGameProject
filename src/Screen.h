@@ -28,6 +28,8 @@ public:
         Vector2 mapPos{};
         Texture2D playerRun{};
         Texture2D playerIdle{};
+        Texture2D playerRun2{};
+        Texture2D playerIdle2{};
         Vector2 playerPos{};
         Texture2D goblin{};
         Vector2 ballPosition{};
@@ -76,6 +78,8 @@ public:
 
         Music backgroundMusic = LoadMusicStream("sound/background-music.mp3");
         float timePlayed = 0.0f;
+
+        float enemySpawn{};
         
 };
 

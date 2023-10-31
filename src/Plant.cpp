@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <cmath>
 
-Plant::Plant(Vector2 getpos) {
+Plant::Plant(Vector2 getpos) : getpos(getpos)  {
         pos = getpos;
 }
 

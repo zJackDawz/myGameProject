@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <cmath>
 
-Enemy::Enemy(Texture spriteIdle, Texture spriteRun, int nType, Player *character) {
+Enemy::Enemy(Texture spriteIdle, Texture spriteRun, int nType, Player *character) : spriteRun(spriteRun), nType(nType), character(character) {
         target = character;
         posX = (float)(rand()%map.width);
         posY = (float)(rand()%map.height);
@@ -32,6 +32,24 @@ void Enemy::update(float deltaTime) {
                 Item::drawItem(itemPos);
         }
         Entity::update(deltaTime);
+        PlayMusicStream(gotHit);
+        if (timePlayed < 1.0f && isDead)
+        {
+                // timePlayed = GetMusicTimePlayed(gotHit)/GetMusicTimeLength(gotHit);
+                if (timePlayed < 0.9f) {
+                        timePlayed = GetMusicTimePlayed(gotHit)/GetMusicTimeLength(gotHit);
+                        UpdateMusicStream(gotHit);
+                }
+                        
+                if (timePlayed >= 0.9f && !drop) {
+                        // timePlayed = 1.0f;
+                        alive = false;
+                        printf("Delete");
+                }
+
+                printf("timePlayed : %f\n", timePlayed);
+        }
+
 }
 
 void Enemy::SetTarget(Player *character)
@@ -126,6 +144,9 @@ void Enemy::dead(){
         // posY = (float)(rand()%map.height);
         posX = 9999;
         posY = 9999;
+        isDead = true;
+        
+
 }
 
 Vector2 Enemy::getPos() {
@@ -138,7 +159,7 @@ void Enemy::dropChance() {
                 itemPos = {posX,posY};
         }
         else {
-                alive = false;
+                
 
         }
 }
@@ -146,5 +167,8 @@ void Enemy::dropChance() {
 void Enemy::removeItem() {
         itemPos = {-1000,-1000};
         drop = false;
-        alive = false;
+        if (timePlayed > 0.9f) {
+                alive = false;
+        }
+        
 }

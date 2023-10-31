@@ -5,6 +5,8 @@
 
 class Plant {
 public:
+        Plant() {}
+
         Plant(Vector2 getpos);
         void drawPlant(float deltaTime);
 
@@ -22,7 +24,8 @@ public:
 
         Rectangle hitbox();
         int remove();
-
+private:
+        Vector2 getpos;
 };
 
 #endif

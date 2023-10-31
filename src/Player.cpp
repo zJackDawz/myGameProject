@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-Player::Player(Vector2 pos, Texture spriteIdle, Texture spriteRun) {
+Player::Player(Vector2 pos, Texture spriteIdle, Texture spriteRun) : pos(pos), spriteRun(spriteRun) {
     posX = pos.x;
     posY = pos.y;
     spriteWidth = (float)spriteIdle.width/6;
@@ -156,7 +156,7 @@ void Player::printStatus() {
     DrawText(TextFormat("GreenPeaSeeds : %d ", seeds), 10, 80, 20, DARKGRAY);
     DrawText(TextFormat("Money : %d ", money), 10, 100, 20, DARKGRAY);
     if (skillCooldown[0]-(timeCount-skillActiveTime)>0) {
-        DrawText(TextFormat("Skill Is On Cooldown Ma yed mae : %.2f ", skillCooldown[0]-(timeCount-skillActiveTime)), 10, 120, 60, RED);
+        DrawText(TextFormat("Skill Is On Cooldown : %.2f ", skillCooldown[0]-(timeCount-skillActiveTime)), 10, 120, 60, RED);
     }
     else {
         DrawText("Skill Is Ready", 10, 120, 40, GREEN);

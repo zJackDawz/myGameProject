@@ -10,6 +10,7 @@ class Player : public Entity, public Item, public Skill {
 public:
     Rectangle safeArea();
 
+    Player() {}
     Player(Vector2 pos, Texture sprite, Texture spriteRun);
     virtual float getPosX();
     virtual float getPosY();
@@ -52,6 +53,11 @@ public:
     float timeCount{};
 
     Color tintPlant = { 0, 228, 48, 240 };
+
+private:
+    Vector2 pos{};
+    Texture sprite{};
+    Texture spriteRun{};
 
 };
 
